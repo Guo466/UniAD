@@ -155,4 +155,6 @@ core.*
 mmcv
 
 # vscode config file
-.vscode/
+.vscode/results/
+*.mp4
+cuda-keyring*.deb

@@ -52,8 +52,6 @@ model = dict(
         # 碰撞损失：occ_head=None 时无法使用，改为空列表
         # （不能传 None，PlanningHeadSingleMode 会对它做迭代）
         loss_collision=[],
-        # 运动学损失：显存优化，禁用
-        loss_kinematic=None,
         # 碰撞避免优化：occ_head=None 时无法启用
         use_col_optim=False,
         col_optim_args=dict(occ_filter_range=5.0, sigma=1.0, alpha_collision=5.0),

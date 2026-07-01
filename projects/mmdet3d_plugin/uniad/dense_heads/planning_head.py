@@ -136,7 +136,8 @@ class PlanningHeadSingleMode(nn.Module):
         sdc_traj_query = outs_motion['sdc_traj_query']
         sdc_track_query = outs_motion['sdc_track_query']
         bev_pos = outs_motion['bev_pos']
-        occ_mask = outs_occflow['seg_out']
+        # occ_head=None 时 outs_occflow 为空字典，occ_mask 置 None（use_col_optim=False 时不使用）
+        occ_mask = outs_occflow.get('seg_out', None)
         
         outs_planning = self(bev_embed, occ_mask, bev_pos, sdc_traj_query, sdc_track_query, command)
         return outs_planning

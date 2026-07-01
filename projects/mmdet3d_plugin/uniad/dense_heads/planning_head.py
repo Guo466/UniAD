@@ -30,6 +30,8 @@ class PlanningHeadSingleMode(nn.Module):
                     alpha_collision=5.0,
                  ),
                  with_adapter=False,
+                 n_bev_tokens=64,   # 显存优化：对 BEV 特征图降采样，减少 cross-attn 的 key 数量
+                                    # 默认 64，对应 DiT 版本的 n_bev_tokens=64，保证对比公平
                 ):
         """
         Single Mode Planning Head for Autonomous Driving.
@@ -79,6 +81,9 @@ class PlanningHeadSingleMode(nn.Module):
         self.occ_filter_range = col_optim_args['occ_filter_range']
         self.sigma = col_optim_args['sigma']
         self.alpha_collision = col_optim_args['alpha_collision']
+
+        # 显存优化：BEV token 采样数量（40000 → n_bev_tokens）
+        self.n_bev_tokens = n_bev_tokens
 
         # TODO: reimplement it with down-scaled feature_map
         self.with_adapter = with_adapter
@@ -183,8 +188,14 @@ class PlanningHeadSingleMode(nn.Module):
         pos_embed = self.pos_embed.weight
         plan_query = plan_query + pos_embed[None]  # [1, 1, 256]
         
+        # 显存优化：对 BEV 特征做随机降采样（40000 → n_bev_tokens）
         # plan_query: [1, 1, 256]
-        # bev_feat: [40000, 1, 256]
+        # bev_feat: [40000, 1, 256] → 采样后 [n_bev_tokens, 1, 256]
+        # 保持与 DiT 版本 n_bev_tokens=64 一致，保证对比公平
+        num_bev = bev_feat.shape[0]
+        if self.n_bev_tokens < num_bev:
+            idx = torch.randperm(num_bev, device=bev_feat.device)[:self.n_bev_tokens]
+            bev_feat = bev_feat[idx]
         plan_query = self.attn_module(plan_query, bev_feat)   # [1, 1, 256]
         
         sdc_traj_all = self.reg_branch(plan_query).view((-1, self.planning_steps, 2))

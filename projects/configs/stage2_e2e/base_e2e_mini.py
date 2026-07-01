@@ -61,6 +61,10 @@ model = dict(
         planning_eval=False,
         # BEV Adapter：显存优化，关闭
         with_adapter=False,
+        # BEV token 降采样：40000 → 64（与 DiT 版本 n_bev_tokens=64 完全一致）
+        # 原版 PlanningHeadSingleMode 对 40000 个 BEV token 做 cross-attn，8GB 显存不够
+        # 采样到 64 后显存正常，且与 DiT 版本的 BEV 信息量完全相同，保证对比公平
+        n_bev_tokens=64,
     ),
 )
 

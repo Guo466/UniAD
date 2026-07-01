@@ -22,7 +22,9 @@
 # 继承原版 Stage2 完整配置
 _base_ = ["./base_e2e.py"]
 
-# ---- Mini 数据集路径 ----
+# ---- 数据集路径 ----
+# 注意：笔记本上 data/infos/ 目录只有完整数据集的 pkl，没有 mini 子集
+# 两个实验（UniAD 原版 vs DiT 版）均使用相同数据，对比公平
 _mini_info_root = "data/infos/"
 _mini_data_root  = "data/nuscenes/"
 
@@ -87,16 +89,16 @@ data = dict(
     samples_per_gpu=1,
     workers_per_gpu=2,
     train=dict(
-        ann_file=_mini_info_root + "nuscenes_infos_temporal_mini_infos_temporal_train.pkl",
+        ann_file=_mini_info_root + "nuscenes_infos_temporal_train.pkl",
         data_root=_mini_data_root,
         queue_length=1,
     ),
     val=dict(
-        ann_file=_mini_info_root + "nuscenes_infos_temporal_mini_infos_temporal_val.pkl",
+        ann_file=_mini_info_root + "nuscenes_infos_temporal_val.pkl",
         data_root=_mini_data_root,
     ),
     test=dict(
-        ann_file=_mini_info_root + "nuscenes_infos_temporal_mini_infos_temporal_val.pkl",
+        ann_file=_mini_info_root + "nuscenes_infos_temporal_val.pkl",
         data_root=_mini_data_root,
     ),
 )
